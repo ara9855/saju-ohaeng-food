@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://ara9855.github.io/saju-ohaeng-food/sitemap.xml
