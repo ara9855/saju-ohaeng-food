@@ -146,14 +146,24 @@ table.map th{background:var(--bg);color:var(--sub);font-weight:600}
           <label><input type="radio" name="sex" value="M">남</label>
         </div>
       </div>
+      <div>
+        <label>양력 / 음력</label>
+        <div class="radio-row" id="calRow">
+          <label class="on"><input type="radio" name="cal" value="S" checked>양력</label>
+          <label><input type="radio" name="cal" value="L">음력</label>
+        </div>
+      </div>
     </div>
     <div class="form" style="margin-top:12px">
+      <label id="leapWrap" style="display:none;align-items:center;gap:8px;font-size:.85rem;color:var(--ink);grid-column:1/-1">
+        <input type="checkbox" id="leap" style="width:auto"> 윤달(閏月)에 태어났어요 — 음력이고 그해 윤달일 때만 체크
+      </label>
       <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--ink);grid-column:1/-1">
         <input type="checkbox" id="lonc" checked style="width:auto"> 한국 출생 표준시 보정 (경도차 약 −30분) — 시(時)의 정확도를 높입니다
       </label>
     </div>
     <div style="margin-top:14px"><button class="btn" id="go">오행 풀이 →</button></div>
-    <p class="hint">※ 음력 생일이면 먼저 양력으로 변환해서 입력하세요. 시각을 모르면 시·분을 비워두면 0시로 계산합니다(시주 정확도는 낮아짐). 자시(子時)는 23:00부터 다음 날로 계산합니다.</p>
+    <p class="hint">※ 음력을 고르면 자동으로 양력으로 변환해 계산하고, 변환된 양력 날짜를 함께 보여줍니다. 시각을 모르면 시·분을 비워두면 0시로 계산합니다(시주 정확도는 낮아짐). 자시(子時)는 23:00부터 다음 날로 계산합니다. 음력은 1900~2100년만 지원합니다.</p>
   </div>
 
   <div id="result" style="display:none">
@@ -162,6 +172,7 @@ table.map th{background:var(--bg);color:var(--sub);font-weight:600}
       <h2><span class="num">2</span>사주 네 기둥</h2>
       <div class="pillars" id="pillars"></div>
       <p class="mini" id="meta"></p>
+      <p class="mini" id="lunarWarn" style="display:none;color:var(--hwa)"></p>
     </div>
 
     <!-- 오행 분포 -->
@@ -268,6 +279,46 @@ const FOODDB=[
  {el:4,taste:'짠맛',organ:'신장·방광',foods:['검은콩','검은깨','미역','다시마','김','밤','돼지고기','해삼','소금']}
 ];
 
+/* ===== 음력 → 양력 변환 (표준 음력표 1900~2100) ===== */
+const LUNAR=[
+0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+0x05aa0,0x076a3,0x096d0,0x04bd7,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,
+0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,0x0d520];
+const LUNAR_BASE=Date.UTC(1900,0,31);   // 음력 1900-1-1 = 양력 1900-1-31
+const lLeapMonth=y=>LUNAR[y-1900]&0xf;
+const lLeapDays=y=>lLeapMonth(y)?((LUNAR[y-1900]&0x10000)?30:29):0;
+const lMonthDays=(y,m)=>(LUNAR[y-1900]&(0x10000>>m))?30:29;
+function lYearDays(y){let s=348;for(let i=0x8000;i>0x8;i>>=1)s+=(LUNAR[y-1900]&i)?1:0;return s+lLeapDays(y);}
+// 음력(y,m,d,윤달여부) → 양력 {y,m,d}
+function lunarToSolar(y,mo,d,isLeap){
+  let off=0; for(let i=1900;i<y;i++)off+=lYearDays(i);
+  const L=lLeapMonth(y);
+  for(let i=1;i<mo;i++)off+=lMonthDays(y,i);
+  if(isLeap&&mo===L)off+=lMonthDays(y,mo); else if(L>0&&L<mo)off+=lLeapDays(y);
+  off+=d-1;
+  const t=new Date(LUNAR_BASE+off*86400000);
+  return {y:t.getUTCFullYear(),m:t.getUTCMonth()+1,d:t.getUTCDate()};
+}
+// 한국 음력이 표준(중국식) 표와 윤달 위치가 다른 해 — 변환 주의 안내용
+const LUNAR_DIFF_YEARS=[2012,2017];
+
 /* ===== 사주 계산 ===== */
 function jdn(y,m,d){const a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;
  return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;}
@@ -329,14 +380,25 @@ let S=null;      // 계산 결과
 let yearData=null;
 
 function run(){
-  const y=+val('y'),mo=+val('mo'),d=+val('d'),h=+val('h'),mi=+val('mi');
+  let y=+val('y'),mo=+val('mo'),d=+val('d');const h=+val('h'),mi=+val('mi');
   // 입력 검증
   if(!val('y')||!val('mo')||!val('d')){alert('연·월·일을 입력해주세요.');return;}
   if(mo<1||mo>12||d<1||d>31||y<1900||y>2100){alert('날짜를 올바르게 입력해주세요.');return;}
   if(val('h')!==''&&(h<0||h>23)){alert('시(時)는 0~23 사이로 입력해주세요.');return;}
   const sex=document.querySelector('input[name=sex]:checked').value;
   const lonCorr=document.getElementById('lonc').checked;
+  const calType=document.querySelector('input[name=cal]:checked').value;
+  // 음력이면 양력으로 변환
+  let lunarInput=null;
+  if(calType==='L'){
+    let isLeap=document.getElementById('leap').checked;
+    if(isLeap && lLeapMonth(y)!==mo){ isLeap=false; } // 그해 윤달이 아니면 무시
+    lunarInput={y,mo,d,isLeap};
+    const s=lunarToSolar(y,mo,d,isLeap);
+    y=s.y; mo=s.m; d=s.d;
+  }
   const sj=computeSaju(y,mo,d,h,mi,lonCorr);
+  sj.solar={y,mo,d}; sj.lunar=lunarInput;
   const [yS,yB]=sj.pillars[0],[mS,mB]=sj.pillars[1];
   const dae=daeunSetup(y,mo,d,sj.ah,sj.am,sex,yS,mS,mB);
 
@@ -397,9 +459,22 @@ function renderPillars(){
       <div class="ko">${STEMS_KO[s]}${BRANCHES_KO[b]}</div></div>`;
   });
   const g=S.sex==='F'?'여자':'남자';
-  document.getElementById('meta').textContent=
-    `${S.y}년 ${S.mo}월 ${S.d}일 ${String(S.sj.ah).padStart(2,'0')}:${String(S.sj.am).padStart(2,'0')} · ${g} · `+
+  const pad=n=>String(n).padStart(2,'0');
+  let dateStr='';
+  if(S.sj.lunar){
+    const L=S.sj.lunar;
+    dateStr=`음력 ${L.y}.${pad(L.mo)}.${pad(L.d)}${L.isLeap?' (윤달)':''} <b>→ 양력 ${S.y}.${pad(S.mo)}.${pad(S.d)}</b>`;
+  } else {
+    dateStr=`양력 ${S.y}.${pad(S.mo)}.${pad(S.d)}`;
+  }
+  document.getElementById('meta').innerHTML=
+    `${dateStr} ${pad(S.sj.ah)}:${pad(S.sj.am)} · ${g} · `+
     `일간(나) = ${STEMS[S.sj.pillars[2][0]]}(${STEMS_KO[S.sj.pillars[2][0]]}) ${ELH[STEM_ELEM[S.sj.pillars[2][0]]]}`;
+  // 음력 변환 주의 안내
+  const warn=document.getElementById('lunarWarn');
+  if(S.sj.lunar && (LUNAR_DIFF_YEARS.includes(S.sj.lunar.y) || S.sj.lunar.isLeap)){
+    warn.style.display=''; warn.innerHTML='⚠️ 이 해(또는 윤달)는 한국 음력이 표준 변환과 하루~한 달 차이가 날 수 있어요. 양력 생일을 알면 <b>양력으로 입력</b>하는 걸 권합니다.';
+  } else if(warn){ warn.style.display='none'; }
 }
 
 function renderBars(){
@@ -534,6 +609,13 @@ document.getElementById('yrRange').oninput=e=>selectYear(e.target.value);
 document.getElementById('sexRow').onclick=e=>{
   document.querySelectorAll('#sexRow label').forEach(l=>l.classList.remove('on'));
   const lb=e.target.closest('label'); if(lb){lb.classList.add('on');lb.querySelector('input').checked=true;}
+};
+document.getElementById('calRow').onclick=e=>{
+  document.querySelectorAll('#calRow label').forEach(l=>l.classList.remove('on'));
+  const lb=e.target.closest('label'); if(lb){lb.classList.add('on');lb.querySelector('input').checked=true;}
+  const isLunar=document.querySelector('input[name=cal]:checked').value==='L';
+  document.getElementById('leapWrap').style.display=isLunar?'flex':'none';
+  if(!isLunar)document.getElementById('leap').checked=false;
 };
 document.getElementById('themeBtn').onclick=()=>{
   const r=document.documentElement;
