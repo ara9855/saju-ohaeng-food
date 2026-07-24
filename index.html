@@ -1,0 +1,517 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사주 오행 식단 처방 · 오행상</title>
+<style>
+:root{
+  --bg:#f6f1e7; --panel:#fffdf8; --ink:#2c2620; --sub:#7a7064; --line:#e6ddca;
+  --accent:#8a6d3b; --accent2:#b08a4a; --shadow:0 2px 14px rgba(80,60,30,.10);
+  --mok:#2e9e5b; --hwa:#d94a3d; --to:#d9a520; --geum:#8a94a0; --su:#3a63d9;
+}
+:root[data-theme=dark],
+@media (prefers-color-scheme:dark){}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#191510;--panel:#221c15;--ink:#ece3d2;--sub:#a99e8c;--line:#3a3125;
+    --accent:#d6b877;--accent2:#c9a463;--shadow:0 2px 18px rgba(0,0,0,.4);
+    --geum:#aab4c0;}
+}
+:root[data-theme=dark]{--bg:#191510;--panel:#221c15;--ink:#ece3d2;--sub:#a99e8c;--line:#3a3125;
+    --accent:#d6b877;--accent2:#c9a463;--shadow:0 2px 18px rgba(0,0,0,.4);--geum:#aab4c0;}
+:root[data-theme=light]{--bg:#f6f1e7;--panel:#fffdf8;--ink:#2c2620;--sub:#7a7064;--line:#e6ddca;
+    --accent:#8a6d3b;--accent2:#b08a4a;--shadow:0 2px 14px rgba(80,60,30,.10);--geum:#8a94a0;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+  line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:1000px;margin:0 auto;padding:22px 16px 60px}
+header.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+h1{font-size:1.5rem;margin:0;letter-spacing:-.02em}
+.tag{font-size:.8rem;color:var(--sub)}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--line);color:var(--sub);
+  border-radius:20px;padding:5px 12px;font-size:.78rem;cursor:pointer}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:18px;margin-top:16px;box-shadow:var(--shadow)}
+.card h2{font-size:1.05rem;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.card h2 .num{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;
+  font-size:.8rem;display:grid;place-items:center;flex:none}
+label{font-size:.8rem;color:var(--sub);display:block;margin-bottom:3px}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:12px;align-items:end}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;
+  background:var(--bg);color:var(--ink);font-size:.95rem;font-family:inherit}
+.radio-row{display:flex;gap:8px}
+.radio-row label{display:flex;align-items:center;gap:5px;font-size:.9rem;color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;margin:0;flex:1;justify-content:center}
+.radio-row input{width:auto}
+.radio-row label.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:12px;padding:11px 22px;
+  font-size:1rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--accent2)}
+.hint{font-size:.75rem;color:var(--sub);margin-top:8px}
+/* pillars */
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center}
+.pil{border:1px solid var(--line);border-radius:12px;padding:10px 4px;background:var(--bg)}
+.pil .lbl{font-size:.72rem;color:var(--sub)}
+.pil .han{font-size:1.9rem;line-height:1.15;font-weight:600}
+.pil .ko{font-size:.75rem;color:var(--sub)}
+.el-mok{color:var(--mok)} .el-hwa{color:var(--hwa)} .el-to{color:var(--to)}
+.el-geum{color:var(--geum)} .el-su{color:var(--su)}
+/* ohaeng bars */
+.bars{display:grid;gap:9px}
+.bar-row{display:grid;grid-template-columns:56px 1fr 40px;align-items:center;gap:10px}
+.bar-row .name{font-size:.9rem}
+.bar-track{height:16px;background:var(--bg);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.bar-fill{height:100%;border-radius:8px}
+.bar-row .val{font-size:.85rem;color:var(--sub);text-align:right;font-variant-numeric:tabular-nums}
+.mini{font-size:.8rem;color:var(--sub);margin-top:10px}
+/* chart */
+.chart-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+canvas{width:100%;display:block;touch-action:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.yearctl{display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap}
+.yearctl input[type=range]{flex:1;min-width:180px;accent-color:var(--accent)}
+.yr-badge{font-size:1.05rem;font-weight:700;color:var(--accent);min-width:52px}
+/* prescription */
+.rx-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.rx-grid{grid-template-columns:1fr}}
+.rx{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--bg)}
+.rx.good{border-left:4px solid var(--mok)}
+.rx.bad{border-left:4px solid var(--hwa)}
+.rx h3{margin:0 0 8px;font-size:.98rem;display:flex;align-items:center;gap:6px}
+.rx .why{font-size:.82rem;color:var(--sub);margin:0 0 10px}
+.chip{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  padding:4px 11px;font-size:.85rem;margin:0 5px 6px 0}
+.el-block{margin-bottom:12px}
+.el-block:last-child{margin-bottom:0}
+.el-title{font-size:.9rem;font-weight:600;margin-bottom:5px}
+table.map{width:100%;border-collapse:collapse;font-size:.85rem}
+table.map th,table.map td{border:1px solid var(--line);padding:7px 8px;text-align:center}
+table.map th{background:var(--bg);color:var(--sub);font-weight:600}
+.daeun-info{font-size:.88rem;color:var(--sub);margin-top:2px}
+.daeun-info b{color:var(--ink)}
+.disclaimer{font-size:.78rem;color:var(--sub);background:var(--bg);border:1px dashed var(--line);
+  border-radius:12px;padding:12px 14px;margin-top:16px}
+.foot{text-align:center;font-size:.75rem;color:var(--sub);margin-top:24px}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>🍵 사주 오행 식단</h1>
+    <span class="tag">생년월일시로 오행을 읽고, 해마다 채우고 덜어낼 음식을 처방합니다</span>
+    <button class="theme-btn" id="themeBtn">☾ 테마</button>
+  </header>
+
+  <!-- 입력 -->
+  <div class="card">
+    <h2><span class="num">1</span>생년월일시 (양력)</h2>
+    <div class="form">
+      <div><label>연도</label><input type="number" id="y" placeholder="예: 1990" min="1900" max="2100"></div>
+      <div><label>월</label><input type="number" id="mo" placeholder="1~12" min="1" max="12"></div>
+      <div><label>일</label><input type="number" id="d" placeholder="1~31" min="1" max="31"></div>
+      <div><label>시</label><input type="number" id="h" placeholder="0~23" min="0" max="23"></div>
+      <div><label>분</label><input type="number" id="mi" placeholder="0~59" min="0" max="59"></div>
+      <div>
+        <label>성별</label>
+        <div class="radio-row" id="sexRow">
+          <label class="on"><input type="radio" name="sex" value="F" checked>여</label>
+          <label><input type="radio" name="sex" value="M">남</label>
+        </div>
+      </div>
+    </div>
+    <div class="form" style="margin-top:12px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--ink);grid-column:1/-1">
+        <input type="checkbox" id="lonc" checked style="width:auto"> 한국 출생 표준시 보정 (경도차 약 −30분) — 시(時)의 정확도를 높입니다
+      </label>
+    </div>
+    <div style="margin-top:14px"><button class="btn" id="go">오행 풀이 →</button></div>
+    <p class="hint">※ 음력 생일이면 먼저 양력으로 변환해서 입력하세요. 시각을 모르면 시·분을 비워두면 0시로 계산합니다(시주 정확도는 낮아짐). 자시(子時)는 23:00부터 다음 날로 계산합니다.</p>
+  </div>
+
+  <div id="result" style="display:none">
+    <!-- 사주 -->
+    <div class="card">
+      <h2><span class="num">2</span>사주 네 기둥</h2>
+      <div class="pillars" id="pillars"></div>
+      <p class="mini" id="meta"></p>
+    </div>
+
+    <!-- 오행 분포 -->
+    <div class="card">
+      <h2><span class="num">3</span>타고난 오행 분포</h2>
+      <div class="bars" id="bars"></div>
+      <p class="mini" id="ohInterp"></p>
+    </div>
+
+    <!-- 연도별 그래프 -->
+    <div class="card">
+      <div class="chart-head">
+        <h2 style="margin:0"><span class="num">4</span>연도별 오행의 기운</h2>
+        <span class="tag">세운(그해)·대운(10년)이 더해져 오르내립니다</span>
+      </div>
+      <canvas id="chart" height="300"></canvas>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--mok)"></i>木 목</span>
+        <span><i class="dot" style="background:var(--hwa)"></i>火 화</span>
+        <span><i class="dot" style="background:var(--to)"></i>土 토</span>
+        <span><i class="dot" style="background:var(--geum)"></i>金 금</span>
+        <span><i class="dot" style="background:var(--su)"></i>水 수</span>
+      </div>
+      <div class="yearctl">
+        <span class="tag">처방 볼 연도</span>
+        <input type="range" id="yrRange">
+        <span class="yr-badge" id="yrBadge"></span>
+      </div>
+      <p class="daeun-info" id="daeunInfo"></p>
+    </div>
+
+    <!-- 처방 -->
+    <div class="card">
+      <h2><span class="num">5</span><span id="rxYear"></span>년 음식 처방</h2>
+      <div class="rx-grid">
+        <div class="rx good">
+          <h3>🌱 채우면 좋은 기운 <span class="tag">부족 → 보(補)</span></h3>
+          <p class="why" id="goodWhy"></p>
+          <div id="goodFoods"></div>
+        </div>
+        <div class="rx bad">
+          <h3>🔥 덜어낼 기운 <span class="tag">과잉 → 사(瀉)</span></h3>
+          <p class="why" id="badWhy"></p>
+          <div id="badFoods"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 매핑표 -->
+    <div class="card">
+      <h2><span class="num">6</span>오행 · 맛 · 장부 · 음식 지도</h2>
+      <div style="overflow-x:auto">
+      <table class="map">
+        <tr><th>오행</th><th>맛</th><th>장부</th><th>색</th><th>대표 음식</th></tr>
+        <tr><td class="el-mok"><b>木 목</b></td><td>신맛</td><td>간·담</td><td>초록</td><td>부추·매실·레몬·보리·팥·닭고기</td></tr>
+        <tr><td class="el-hwa"><b>火 화</b></td><td>쓴맛</td><td>심장·소장</td><td>빨강</td><td>수박·딸기·토마토·오이·녹두·상추·수수</td></tr>
+        <tr><td class="el-to"><b>土 토</b></td><td>단맛</td><td>비장·위</td><td>노랑</td><td>기장·대추·단호박·고구마·꿀·소고기</td></tr>
+        <tr><td class="el-geum"><b>金 금</b></td><td>매운맛</td><td>폐·대장</td><td>흰색</td><td>현미·마늘·생강·파·양파·무·배·도라지</td></tr>
+        <tr><td class="el-su"><b>水 수</b></td><td>짠맛</td><td>신장·방광</td><td>검정</td><td>검은콩·검은깨·미역·다시마·밤·돼지고기</td></tr>
+      </table>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      이 도구는 전통 사주·오행 이론에 기반한 <b>참고·재미용</b>이며 의학적 진단이나 치료가 아닙니다.
+      실제 알러지·질환은 병원 검사와 전문의 상담으로 확인하세요. (연도별 세기 값은 지장간·세운·대운을 반영한 해석 모델이며, 프로그램마다 가중치가 다릅니다.)
+    </div>
+    <div class="foot">사주 오행 식단 · 오행상 — 일의 순환 도구</div>
+  </div>
+</div>
+
+<script>
+/* ===== 상수 ===== */
+const STEMS=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const STEMS_KO=['갑','을','병','정','무','기','경','신','임','계'];
+const BRANCHES=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const BRANCHES_KO=['자','축','인','묘','진','사','오','미','신','유','술','해'];
+const STEM_ELEM=[0,0,1,1,2,2,3,3,4,4];              // 0목1화2토3금4수
+const BRANCH_ELEM=[4,2,0,0,2,1,1,2,3,3,2,4];
+const ELH=['木','火','土','金','水'], ELK=['목','화','토','금','수'];
+const ELCLASS=['el-mok','el-hwa','el-to','el-geum','el-su'];
+const ELVAR=['--mok','--hwa','--to','--geum','--su'];
+// 지장간 [천간index, 가중치]
+const HIDDEN=[
+ [[8,.3],[9,1]],            //子
+ [[9,.3],[7,.5],[5,1]],     //丑
+ [[4,.3],[2,.5],[0,1]],     //寅
+ [[0,.3],[1,1]],            //卯
+ [[1,.3],[9,.5],[4,1]],     //辰
+ [[4,.3],[6,.5],[2,1]],     //巳
+ [[2,.3],[5,.5],[3,1]],     //午
+ [[3,.3],[1,.5],[5,1]],     //未
+ [[4,.3],[8,.5],[6,1]],     //申
+ [[6,.3],[7,1]],            //酉
+ [[7,.3],[3,.5],[4,1]],     //戌
+ [[4,.3],[0,.5],[8,1]]      //亥
+];
+// 오행별 음식·맛·장부
+const FOODDB=[
+ {el:0,taste:'신맛',organ:'간·담',foods:['부추','매실','레몬','귤','보리','팥','참깨','닭고기','밀','신 김치']},
+ {el:1,taste:'쓴맛',organ:'심장·소장',foods:['수박','딸기','토마토','오이','녹두','상추','쑥갓','수수','살구','도라지차']},
+ {el:2,taste:'단맛',organ:'비장·위',foods:['기장','대추','단호박','고구마','꿀','시금치','소고기','밤','참외']},
+ {el:3,taste:'매운맛',organ:'폐·대장',foods:['현미','마늘','생강','파','양파','무','배','도라지','마','고추']},
+ {el:4,taste:'짠맛',organ:'신장·방광',foods:['검은콩','검은깨','미역','다시마','김','밤','돼지고기','해삼','소금']}
+];
+
+/* ===== 사주 계산 ===== */
+function jdn(y,m,d){const a=Math.floor((14-m)/12),yy=y+4800-a,mm=m+12*a-3;
+ return d+Math.floor((153*mm+2)/5)+365*yy+Math.floor(yy/4)-Math.floor(yy/100)+Math.floor(yy/400)-32045;}
+function toJD(y,m,d,h,mi){return jdn(y,m,d)+(h-12)/24+mi/1440-9/24;}
+function solarLong(y,m,d,h,mi){const n=toJD(y,m,d,h,mi)-2451545.0;
+ const L=280.460+0.9856474*n, g=(357.528+0.9856003*n)*Math.PI/180;
+ let lam=L+1.915*Math.sin(g)+0.020*Math.sin(2*g); lam%=360; if(lam<0)lam+=360; return lam;}
+function monthBranchFromLong(lam){const a=((lam-315)%360+360)%360; return (2+Math.floor(a/30))%12;}
+function sixtyIndex(stem,branch){for(let i=0;i<60;i++)if(i%10===stem&&i%12===branch)return i;return 0;}
+
+function computeSaju(y,mo,d,h,mi,lonCorr){
+  let tmin=h*60+mi-(lonCorr?30:0);
+  let ah=Math.floor(((tmin%1440)+1440)%1440/60), am=((tmin%60)+60)%60;
+  // 일주 (자시 23시부터 다음날)
+  let dayJDN=jdn(y,mo,d); if(ah>=23)dayJDN+=1;
+  let dayIdx=((dayJDN+49)%60+60)%60, dayStem=dayIdx%10, dayBranch=dayIdx%12;
+  // 년주 (입춘)
+  let lam=solarLong(y,mo,d,ah,am);
+  let sy=y; if(mo===1)sy=y-1; else if(mo===2&&lam<315)sy=y-1;
+  let yStem=((sy-4)%10+10)%10, yBranch=((sy-4)%12+12)%12;
+  // 월주
+  let mB=monthBranchFromLong(lam);
+  let firstStem=(yStem*2+2)%10, monthNum=(mB-2+12)%12, mStem=(firstStem+monthNum)%10;
+  // 시주
+  let hBranch=Math.floor((ah+1)/2)%12, hStem=(dayStem*2+hBranch)%10;
+  return {ah,am,sajuYear:sy,
+    pillars:[[yStem,yBranch],[mStem,mB],[dayStem,dayBranch],[hStem,hBranch]]};
+}
+
+/* 대운 방향/시작나이 */
+function daeunSetup(y,mo,d,ah,am,sex,yStem,mStem,mB){
+  const yang = (yStem%2===0);
+  const forward = sex==='M' ? yang : !yang;      // 양남·음녀 순행
+  const dir = forward?1:-1;
+  // 절 경계까지 날짜 (월지 바뀔 때까지)
+  let base=new Date(Date.UTC(y,mo-1,d,ah,am));
+  let b0=monthBranchFromLong(solarLong(y,mo,d,ah,am));
+  let days=0;
+  for(let k=1;k<200;k++){
+    let t=new Date(base.getTime()+dir*k*86400000);
+    let lam=solarLong(t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate(),ah,am);
+    if(monthBranchFromLong(lam)!==b0){days=k;break;}
+  }
+  const startAge=days/3;
+  const mIdx=sixtyIndex(mStem,mB);
+  return {dir,startAge,mIdx};
+}
+
+/* 오행 벡터 (한 기둥) */
+function pillarVec(stem,branch){
+  let v=[0,0,0,0,0]; v[STEM_ELEM[stem]]+=1;
+  HIDDEN[branch].forEach(([hs,w])=>v[STEM_ELEM[hs]]+=w);
+  return v;
+}
+function addVec(a,b,s){for(let i=0;i<5;i++)a[i]+=b[i]*s;return a;}
+
+/* ===== 전역 상태 ===== */
+let S=null;      // 계산 결과
+let yearData=null;
+
+function run(){
+  const y=+val('y'),mo=+val('mo'),d=+val('d'),h=+val('h'),mi=+val('mi');
+  // 입력 검증
+  if(!val('y')||!val('mo')||!val('d')){alert('연·월·일을 입력해주세요.');return;}
+  if(mo<1||mo>12||d<1||d>31||y<1900||y>2100){alert('날짜를 올바르게 입력해주세요.');return;}
+  if(val('h')!==''&&(h<0||h>23)){alert('시(時)는 0~23 사이로 입력해주세요.');return;}
+  const sex=document.querySelector('input[name=sex]:checked').value;
+  const lonCorr=document.getElementById('lonc').checked;
+  const sj=computeSaju(y,mo,d,h,mi,lonCorr);
+  const [yS,yB]=sj.pillars[0],[mS,mB]=sj.pillars[1];
+  const dae=daeunSetup(y,mo,d,sj.ah,sj.am,sex,yS,mS,mB);
+
+  // 타고난 오행 (지장간 반영)
+  let natal=[0,0,0,0,0];
+  sj.pillars.forEach(([s,b])=>addVec(natal,pillarVec(s,b),1));
+  // 단순 8글자 집계
+  let simple=[0,0,0,0,0];
+  sj.pillars.forEach(([s,b])=>{simple[STEM_ELEM[s]]++;simple[BRANCH_ELEM[b]]++;});
+
+  S={y,mo,d,sex,sj,dae,natal,simple};
+  renderPillars(); renderBars(); buildYears(); renderChart();
+  document.getElementById('result').style.display='';
+  // 기본 처방 연도: 현재(2026) 또는 생년+30
+  const cur=2026, minY=y+1, maxY=y+90;
+  const dv=Math.min(Math.max(cur,minY),maxY);
+  document.getElementById('yrRange').value=dv;
+  selectYear(dv);
+}
+
+function buildYears(){
+  const {y,natal,dae}=S;
+  const minY=y+1, maxY=y+90;
+  const range=document.getElementById('yrRange');
+  range.min=minY; range.max=maxY; range.step=1;
+  yearData={minY,maxY,series:[[],[],[],[],[]],years:[]};
+  for(let Y=minY;Y<=maxY;Y++){
+    const age=Y-y;
+    // 세운
+    const sS=((Y-4)%10+10)%10, sB=((Y-4)%12+12)%12;
+    const seun=pillarVec(sS,sB);
+    // 대운
+    let daeVec=[0,0,0,0,0];
+    if(age>=dae.startAge){
+      const di=Math.floor((age-dae.startAge)/10);
+      const idx=((dae.mIdx+dae.dir*(di+1))%60+60)%60;
+      daeVec=pillarVec(idx%10,idx%12);
+    }
+    let v=[0,0,0,0,0];
+    for(let i=0;i<5;i++) v[i]=natal[i]*1.0 + daeVec[i]*1.15 + seun[i]*0.9;
+    yearData.years.push(Y);
+    for(let i=0;i<5;i++) yearData.series[i].push(v[i]);
+  }
+}
+
+/* ===== 렌더 ===== */
+function elClass(i){return ELCLASS[i];}
+function renderPillars(){
+  const names=['년주(年)','월주(月)','일주(日)','시주(時)'];
+  const box=document.getElementById('pillars'); box.innerHTML='';
+  // 표시 순서: 시 · 일 · 월 · 년 (전통 사주 배열)
+  [3,2,1,0].forEach(i=>{
+    const [s,b]=S.sj.pillars[i];
+    const es=STEM_ELEM[s], eb=BRANCH_ELEM[b];
+    box.innerHTML+=`<div class="pil"><div class="lbl">${names[i]}</div>
+      <div class="han"><span class="${elClass(es)}">${STEMS[s]}</span><br>
+      <span class="${elClass(eb)}">${BRANCHES[b]}</span></div>
+      <div class="ko">${STEMS_KO[s]}${BRANCHES_KO[b]}</div></div>`;
+  });
+  const g=S.sex==='F'?'여자':'남자';
+  document.getElementById('meta').textContent=
+    `${S.y}년 ${S.mo}월 ${S.d}일 ${String(S.sj.ah).padStart(2,'0')}:${String(S.sj.am).padStart(2,'0')} · ${g} · `+
+    `일간(나) = ${STEMS[S.sj.pillars[2][0]]}(${STEMS_KO[S.sj.pillars[2][0]]}) ${ELH[STEM_ELEM[S.sj.pillars[2][0]]]}`;
+}
+
+function renderBars(){
+  const box=document.getElementById('bars'); box.innerHTML='';
+  const max=Math.max(...S.natal,1);
+  for(let i=0;i<5;i++){
+    const pct=Math.round(S.natal[i]/max*100);
+    box.innerHTML+=`<div class="bar-row">
+      <span class="name ${elClass(i)}"><b>${ELH[i]} ${ELK[i]}</b></span>
+      <span class="bar-track"><span class="bar-fill" style="width:${pct}%;background:var(${ELVAR[i]})"></span></span>
+      <span class="val">${S.simple[i]}자</span></div>`;
+  }
+  // 해석
+  const idxMax=argmax(S.natal), idxMin=argmin(S.natal);
+  const zeros=S.simple.map((v,i)=>v===0?ELH[i]:null).filter(Boolean);
+  let t=`가장 강한 기운은 <b class="${elClass(idxMax)}">${ELH[idxMax]}(${ELK[idxMax]})</b>, 가장 약한 기운은 <b class="${elClass(idxMin)}">${ELH[idxMin]}(${ELK[idxMin]})</b>입니다. `;
+  if(zeros.length) t+=`팔자에 <b>${zeros.join('·')}</b> 기운이 없어 특히 채워주면 좋습니다. `;
+  t+=`오행 식단의 원리는 <b>넘치는 기운은 덜고, 부족한 기운은 채우는 것</b>입니다.`;
+  document.getElementById('ohInterp').innerHTML=t;
+}
+
+/* 캔버스 라인차트 */
+let selYear=null;
+function renderChart(){
+  const c=document.getElementById('chart');
+  const dpr=window.devicePixelRatio||1;
+  const cssW=c.clientWidth, cssH=300;
+  c.width=cssW*dpr; c.height=cssH*dpr;
+  const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+  const {years,series,minY,maxY}=yearData;
+  const cs=getComputedStyle(document.documentElement);
+  const col=[cs.getPropertyValue('--mok'),cs.getPropertyValue('--hwa'),
+    cs.getPropertyValue('--to'),cs.getPropertyValue('--geum'),cs.getPropertyValue('--su')];
+  const line=cs.getPropertyValue('--line'), sub=cs.getPropertyValue('--sub');
+  const padL=30,padR=10,padT=14,padB=24;
+  const W=cssW-padL-padR, H=cssH-padT-padB;
+  let vmax=0; series.forEach(s=>s.forEach(v=>{if(v>vmax)vmax=v}));
+  vmax=Math.ceil(vmax/3)*3||3;
+  const X=Y=>padL+ (Y-minY)/(maxY-minY)*W;
+  const Yv=v=>padT+H - v/vmax*H;
+  // 격자
+  ctx.strokeStyle=line; ctx.fillStyle=sub; ctx.font='10px sans-serif'; ctx.lineWidth=1;
+  for(let g=0;g<=vmax;g+=3){ const yy=Yv(g); ctx.globalAlpha=.6;
+    ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(padL+W,yy);ctx.stroke();ctx.globalAlpha=1;
+    ctx.fillText(g,4,yy+3);}
+  // 10년 눈금(대운 느낌) + 라벨
+  ctx.textAlign='center';
+  for(let Y=Math.ceil(minY/10)*10;Y<=maxY;Y+=10){
+    ctx.globalAlpha=.4;ctx.beginPath();ctx.moveTo(X(Y),padT);ctx.lineTo(X(Y),padT+H);ctx.stroke();ctx.globalAlpha=1;
+    ctx.fillText(Y,X(Y),cssH-8);
+  }
+  ctx.textAlign='start';
+  // 선택 연도 마커
+  if(selYear!==null){ ctx.strokeStyle=cs.getPropertyValue('--accent'); ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(X(selYear),padT);ctx.lineTo(X(selYear),padT+H);ctx.stroke();}
+  // 5 선
+  ctx.lineWidth=1.8;
+  for(let i=0;i<5;i++){
+    ctx.strokeStyle=col[i]; ctx.beginPath();
+    years.forEach((Y,k)=>{const x=X(Y),yy=Yv(series[i][k]); k?ctx.lineTo(x,yy):ctx.moveTo(x,yy);});
+    ctx.stroke();
+  }
+  // 클릭/드래그로 연도 선택
+  c.onpointerdown=c.onpointermove=e=>{
+    if(e.buttons===0&&e.type==='pointermove')return;
+    const r=c.getBoundingClientRect();
+    let Y=Math.round(minY+ (e.clientX-r.left-padL)/W*(maxY-minY));
+    Y=Math.min(Math.max(Y,minY),maxY);
+    document.getElementById('yrRange').value=Y; selectYear(Y);
+  };
+}
+
+function selectYear(Y){
+  Y=+Y; selYear=Y;
+  document.getElementById('yrBadge').textContent=Y+'년';
+  document.getElementById('rxYear').textContent=Y;
+  // 그해 세기 벡터
+  const k=Y-yearData.minY;
+  const v=yearData.series.map(s=>s[k]);
+  const age=Y-S.y;
+  // 대운 정보
+  let dtxt=`만 ${age}세 · `;
+  if(age>=S.dae.startAge){
+    const di=Math.floor((age-S.dae.startAge)/10);
+    const idx=((S.dae.mIdx+S.dae.dir*(di+1))%60+60)%60;
+    const ds=idx%10,db=idx%12;
+    const startY=Math.round(S.y+S.dae.startAge+di*10);
+    dtxt+=`대운 <b>${STEMS[ds]}${BRANCHES[db]}(${STEMS_KO[ds]}${BRANCHES_KO[db]})</b> `+
+      `${ELH[STEM_ELEM[ds]]}·${ELH[BRANCH_ELEM[db]]} 기운 (${startY}~${startY+9}) · `;
+  } else dtxt+=`첫 대운 전 · `;
+  const sS=((Y-4)%10+10)%10, sB=((Y-4)%12+12)%12;
+  dtxt+=`세운 <b>${STEMS[sS]}${BRANCHES[sB]}(${STEMS_KO[sS]}${BRANCHES_KO[sB]})</b> ${ELH[STEM_ELEM[sS]]}·${ELH[BRANCH_ELEM[sB]]}`;
+  document.getElementById('daeunInfo').innerHTML=dtxt;
+  renderChart();
+  renderRx(v);
+}
+
+function renderRx(v){
+  const avg=v.reduce((a,b)=>a+b,0)/5;
+  // 부족: 평균 대비 낮은 것 (하위, avg*0.92 미만) — 최소 1개
+  let low=[], high=[];
+  for(let i=0;i<5;i++){ if(v[i]<avg*0.92)low.push(i); if(v[i]>avg*1.12)high.push(i); }
+  const iMin=argmin(v), iMax=argmax(v);
+  if(!low.includes(iMin))low.unshift(iMin);
+  if(!high.includes(iMax))high.unshift(iMax);
+  low.sort((a,b)=>v[a]-v[b]); high.sort((a,b)=>v[b]-v[a]);
+  low=low.slice(0,2); high=high.slice(0,2);
+
+  document.getElementById('goodWhy').innerHTML=
+    `이 해에 <b>${low.map(i=>ELH[i]+'('+ELK[i]+')').join('·')}</b> 기운이 상대적으로 비어 있습니다. `+
+    `해당하는 맛과 음식으로 채워주세요.`;
+  document.getElementById('goodFoods').innerHTML=low.map(i=>foodBlock(i)).join('');
+  document.getElementById('badWhy').innerHTML=
+    `<b>${high.map(i=>ELH[i]+'('+ELK[i]+')').join('·')}</b> 기운이 넘칩니다. "높은 게 병이 된다" — 이 맛·음식은 과하지 않게 줄이는 편이 좋습니다.`;
+  document.getElementById('badFoods').innerHTML=high.map(i=>foodBlock(i,true)).join('');
+}
+function foodBlock(i,reduce){
+  const f=FOODDB[i];
+  const chips=f.foods.slice(0, reduce?6:8).map(x=>`<span class="chip">${x}</span>`).join('');
+  return `<div class="el-block"><div class="el-title ${elClass(i)}">${ELH[i]} ${ELK[i]} · ${f.taste} · ${f.organ}</div>${chips}</div>`;
+}
+
+/* ===== 유틸 ===== */
+function val(id){return document.getElementById(id).value;}
+function argmax(a){let m=0;for(let i=1;i<a.length;i++)if(a[i]>a[m])m=i;return m;}
+function argmin(a){let m=0;for(let i=1;i<a.length;i++)if(a[i]<a[m])m=i;return m;}
+
+/* ===== 이벤트 ===== */
+document.getElementById('go').onclick=run;
+document.getElementById('yrRange').oninput=e=>selectYear(e.target.value);
+document.getElementById('sexRow').onclick=e=>{
+  document.querySelectorAll('#sexRow label').forEach(l=>l.classList.remove('on'));
+  const lb=e.target.closest('label'); if(lb){lb.classList.add('on');lb.querySelector('input').checked=true;}
+};
+document.getElementById('themeBtn').onclick=()=>{
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme')|| (matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+  r.setAttribute('data-theme', cur==='dark'?'light':'dark');
+  if(S)renderChart();
+};
+window.addEventListener('resize',()=>{if(S)renderChart();});
+// 첫 화면은 빈 입력 — 각자 입력 후 버튼을 눌러야 결과가 나옵니다
+</script>
